@@ -1,57 +1,62 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import ProductsFrontend from "./pages/ProductsFrontend";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { login, logout } from "./features/userSlice";
+import Profile from "./pages/Profile";
+import Stats from "./pages/Stats";
+import Rankings from "./pages/Rankings";
+import ProductsBackend from "./pages/ProductsBackend";
 
 function App() {
+  const [user, setUser] = useState("");
+  const [reset, setReset] = useState(false);
+  const dispatch = useDispatch();
+  useEffect(async () => {
+    await axios
+      .get("user")
+      .then((result) => {
+        setUser(result.data);
+        setReset(true);
+        dispatch(login({ user }));
+      })
+      .catch(function (error) {
+        dispatch(logout({ user: null }));
+        console.log(error);
+      });
+  }, [reset]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <Router>
+      <div>
+        <Switch>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/profile">
+            <Profile />
+          </Route>
+          <Route path="/rankings">
+            <Rankings />
+          </Route>
+          <Route path="/stats">
+            <Stats />
+          </Route>
+          <Route path="/register">
+            <Register />
+          </Route>
+          <Route exact path="/">
+            <ProductsFrontend />
+          </Route>
+          <Route exact path="/backend">
+            <ProductsBackend />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 }
 
